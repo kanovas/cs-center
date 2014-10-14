@@ -1,10 +1,7 @@
 package ru.compscicenter.java2014.calculator;
 
 import ru.compscicenter.java2014.calculator.Operations.BinaryOperations.*;
-import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Abs;
-import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Cos;
-import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Neg;
-import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Sin;
+import ru.compscicenter.java2014.calculator.Operations.SingleOperations.*;
 
 import java.util.ArrayList;
 
@@ -13,7 +10,55 @@ import java.util.ArrayList;
  */
 public class Parser implements Calculator{
 
-	Expression parseAddSub() throws ParserException {
+    private enum singleOperator {
+        singleMinus('-') {
+            @Override
+            public Expression apply() throws ParserException {
+                l++;
+                return new Neg(parsePow());
+            }
+        },
+        sin('s') {
+            @Override
+            public Expression apply() throws ParserException {
+                l++;
+                return new Sin(parseBrackets());
+            }
+        },
+        cos('c') {
+            @Override
+            public Expression apply() throws ParserException {
+                l++;
+                return new Cos(parseBrackets());
+            }
+        },
+        abs('a') {
+            @Override
+            public Expression apply() throws ParserException {
+                l++;
+                return new Abs(parseBrackets());
+            }
+        },
+        ;
+        private final char code;
+
+        private singleOperator(char code) {
+            this.code = code;
+        }
+
+        public static singleOperator buildSingleOperator(char code) {
+            for (singleOperator operator : singleOperator.values()) {
+                if (code == operator.code) {
+                    return operator;
+                }
+            }
+            return null;
+        }
+
+        public abstract Expression apply() throws ParserException;
+    }
+
+	static Expression parseAddSub() throws ParserException {
 		Expression left = parseMulDiv();
 		Expression right;
 		while (l < r) {
@@ -39,7 +84,7 @@ public class Parser implements Calculator{
 		return left;
 	}
 
-	Expression parseMulDiv() throws ParserException {
+	static Expression parseMulDiv() throws ParserException {
 		Expression left = parsePow();
 		Expression right;
 		while (l < r) {
@@ -65,7 +110,7 @@ public class Parser implements Calculator{
 		return left;
 	}
 
-	Expression parsePow() throws ParserException {
+	static Expression parsePow() throws ParserException {
 		Expression left = parseUnary();
 		Expression right;
 		if(l < expr.length && expr[l].equals("^")) {
@@ -78,7 +123,7 @@ public class Parser implements Calculator{
 		}
 	}
 
-	Expression parseBrackets() throws ParserException {
+	static Expression parseBrackets() throws ParserException {
 		if (expr[l].equals("(")) {
 			l++;
 			Expression ret = parseAddSub();
@@ -92,34 +137,12 @@ public class Parser implements Calculator{
 		}
 	}
 
-	Expression parseUnary() throws ParserException {
-		char tmp = expr[l].charAt(0);
-		Expression inside;
-		switch (tmp) {
-			case '+':
-				l++;
-				break;
-			case '-':
-				l++;
-				inside = parsePow();
-				return new Neg(inside);
-			case 's':
-				l++;
-				inside = parseBrackets();
-				return new Sin(inside);
-			case 'c':
-				l++;
-				inside = parseBrackets();
-				return new Cos(inside);
-			case 'a':
-				l++;
-				inside = parseBrackets();
-				return new Abs(inside);
-		}
-		return parseNum();
+	static Expression parseUnary() throws ParserException {
+        singleOperator tmp = singleOperator.buildSingleOperator(expr[l].charAt(0));
+        return tmp != null ? tmp.apply() : parseNum();
 	}
 
-	Expression parseNum() throws ParserException {
+	static Expression parseNum() throws ParserException {
 		if (l < r && expr[l].equals("(")) {
 			return parseBrackets();
 		}
@@ -135,9 +158,9 @@ public class Parser implements Calculator{
 		return ret;
 	}
 
-	boolean isNumber(String s) {return Character.isDigit(s.charAt(0));}
+	static private boolean isNumber(String s) {return Character.isDigit(s.charAt(0));}
 
-    private void parseNumber(char[] c, int i, ArrayList<String> expression) {
+    private void parseNumber(char[] c, ArrayList<String> expression) {
         StringBuilder str = new StringBuilder();
         boolean pointOnce = false;  //marks if point was (once)
         boolean expecting = false;  //marks if we expect +/- after E
@@ -164,15 +187,14 @@ public class Parser implements Calculator{
     }
 
 
-	String[] expr;
-	int l, r;
+	static String[] expr;
+	static int l, r, i;
 
 	public double calculate(String s) {
 		double ans = 0;
-		StringBuilder str = new StringBuilder();
 		char[] c = s.toLowerCase().toCharArray();
 		ArrayList<String> expression = new ArrayList<String>();
-		int i = 0;
+        i = 0;
 		while(i < c.length) {
 			if(c[i] == ' ') {
 				i++;
@@ -182,7 +204,7 @@ public class Parser implements Calculator{
 				i += 3;
 			}
 			else if(Character.isDigit(c[i])) {
-                parseNumber(c, i, expression);
+                parseNumber(c, expression);
 			}
 			else {
 				expression.add(String.valueOf(c[i]));
