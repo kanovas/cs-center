@@ -1,5 +1,11 @@
 package ru.compscicenter.java2014.calculator;
 
+import ru.compscicenter.java2014.calculator.Operations.BinaryOperations.*;
+import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Abs;
+import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Cos;
+import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Neg;
+import ru.compscicenter.java2014.calculator.Operations.SingleOperations.Sin;
+
 import java.util.ArrayList;
 
 /**
@@ -129,16 +135,39 @@ public class Parser implements Calculator{
 		return ret;
 	}
 
-	boolean isDigit(char c) {
-		return c >= '0' && c <= '9';
-	}
+	boolean isNumber(String s) {return Character.isDigit(s.charAt(0));}
 
-	boolean isNumber(String s) {return isDigit(s.charAt(0));}
+    private void parseNumber(char[] c, int i, ArrayList<String> expression) {
+        StringBuilder str = new StringBuilder();
+        boolean pointOnce = false;  //marks if point was (once)
+        boolean expecting = false;  //marks if we expect +/- after E
+        boolean eOnce = false; //marks if E was (once)
+        while((i < c.length) && (Character.isDigit(c[i]) || (!eOnce && c[i] == 'e') ||
+                (expecting && ((c[i] == '+') || (c[i] == '-'))) || (!pointOnce && (c[i] == '.')))) {
+            if(c[i] == 'e') {
+                str.append("E");
+                eOnce = true;
+                expecting = true;
+            }
+            else if(c[i] == '-' || c[i] == '+') {
+                expecting = false;
+                str.append(c[i]);
+            }
+            else {
+                str.append(c[i]);
+            }
+            if(c[i] == '.') pointOnce = true;
+            i++;
+        }
+        expression.add(str.toString());
+        str.delete(0, str.length());
+    }
+
 
 	String[] expr;
 	int l, r;
 
-	public double calculate(String s){
+	public double calculate(String s) {
 		double ans = 0;
 		StringBuilder str = new StringBuilder();
 		char[] c = s.toLowerCase().toCharArray();
@@ -153,33 +182,13 @@ public class Parser implements Calculator{
 				i += 3;
 			}
 			else if(Character.isDigit(c[i])) {
-				boolean pOnce = false;  //marks if point was (once)
-				boolean expecting = false;  //marks if we expect +/- after E
-				boolean eOnce = false; //marks if E was (once)
-				while((i < c.length) && (Character.isDigit(c[i]) || (!eOnce && c[i] == 'e') ||
-						(expecting && ((c[i] == '+') || (c[i] == '-'))) || (!pOnce && (c[i] == '.')))) {
-					if(c[i] == 'e') {
-						str.append("E");
-						eOnce = true;
-						expecting = true;
-					}
-					else if(c[i] == '-' || c[i] == '+') {
-						expecting = false;
-						str.append(c[i]);
-					}
-					else {
-						str.append(c[i]);
-					}
-					if(c[i] == '.') pOnce = true;
-					i++;
-				}
-				expression.add(str.toString());
-				str.delete(0, str.length());
+                parseNumber(c, i, expression);
 			}
 			else {
 				expression.add(String.valueOf(c[i]));
 				i++;
 			}
+
 		}
 		expr = new String[expression.size()];
 		for(i = 0; i < expression.size(); i++) {

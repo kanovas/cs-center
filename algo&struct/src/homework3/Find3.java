@@ -57,53 +57,37 @@ public class Find3 {
 	static FastScanner in;
 	static PrintWriter out;
 
-	static int leftBinarySearch(int[] a, int x) {
-		int l = 0;
-		int r = a.length - 1;
-		int m;
-		while(l < r - 1) {
-			m = (l + r) / 2;
-			if (a[m] < x) {
-				l = m;
-			}
-			else {
-				r = m;
-			}
-		}
-		if(a[l] == x) {
-			return l;
-		}
-//		else if(a[r] == x) {
-//			return r;
-//		}
-		else {
-			return r;
-		}
-	}
+    static int leftBinarySearch(int[] a, int x) {
+        int l = 0;
+        int r = a.length;
+        int m;
+        while(l < r - 1) {
+            m = (l + r) / 2;
+            if(a[m] < x) {
+                l = m;
+            }
+            else {
+                r = m;
+            }
+        }
+        return r;
+    }
 
-	static int rightBinarySearch(int[] a, int x) {
-		int l = 0;
-		int r = a.length - 1;
-		int m;
-		while(l < r - 1) {
-			m = (l + r) / 2;
-			if (a[m] <= x) {
-				l = m;
-			}
-			else {
-				r = m;
-			}
-		}
-		if(a[r] == x) {
-			return r;
-		}
-//		else if(a[l] == x) {
-//			return l;
-//		}
-		else {
-			return l;
-		}
-	}
+    static int rightBinarySearch(int[] a, int x) {
+        int l = 0;
+        int r = a.length;
+        int m;
+        while(l < r - 1) {
+            m = (l + r) / 2;
+            if(a[m] <= x) {
+                l = m;
+            }
+            else {
+                r = m;
+            }
+        }
+        return l;
+    }
 
 	public static void main(String[] args) {
 		try {
@@ -127,10 +111,9 @@ public class Find3 {
 		for(int i = 0; i < k; i++) {
 			l = in.nextInt();
 			r = in.nextInt();
-			posL = max(0, leftBinarySearch(a, l));
+			posL = leftBinarySearch(a, l);
 			posR = rightBinarySearch(a, r);
-			if(r > a[a.length - 1]) posR = a.length - 1;
-			out.print(posR - posL + 1 + " ");
+			out.print(posR - posL - 1 + " ");
 		}
 		out.close();
 	}
