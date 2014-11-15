@@ -1,0 +1,163 @@
+
+package ru.compscicenter.java2014.collections;
+
+import java.util.Map;
+import java.util.AbstractCollection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Collection;
+
+public class MyMultiSet<T> extends AbstractCollection<T> implements MultiSet<T> {
+    private final Map<T, Integer> backingMap = new HashMap<>();
+
+    private class InternalIterator implements Iterator<T> {
+        private final Iterator<Map.Entry<T, Integer>> backingIterator = new HashSet<>(backingMap.entrySet()).iterator();
+        private Map.Entry<T, Integer> current;
+        private int currentRemained;
+        private boolean isLastRemoved;
+
+        @Override
+        public final boolean hasNext() {
+            return currentRemained > 0 || backingIterator.hasNext();
+        }
+
+        @Override
+        public final T next() {
+            if (currentRemained == 0) {
+                current = backingIterator.next();
+                currentRemained = current.getValue();
+            }
+            currentRemained--;
+            isLastRemoved = false;
+            return current.getKey();
+        }
+
+        @Override
+        public final void remove() {
+            if (current == null) {
+                throw new IllegalStateException("next method has not yet been called");
+            }
+            if (isLastRemoved) {
+                throw new IllegalStateException("has already been called after the last call to the next method");
+            }
+            MyMultiSet.this.remove(current.getKey());
+            isLastRemoved = true;
+        }
+    }
+
+    public MyMultiSet() {
+    }
+
+    public MyMultiSet(final Collection<? extends T> collection) {
+        addAll(collection);
+    }
+
+    @Override
+    public final int size() {
+        return backingMap.values().stream().mapToInt(count -> count).sum();
+    }
+
+    @Override
+    public final boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
+    public final boolean contains(final Object item) {
+        return count(item) > 0;
+    }
+
+    @Override
+    public final Iterator<T> iterator() {
+        return new InternalIterator();
+    }
+
+    @Override
+    public final boolean add(final T item) {
+        add(item, 1);
+        return true;
+    }
+
+    @Override
+    public final int add(final T item, final int occurrences) {
+        if (occurrences < 0) {
+            throw new IllegalArgumentException("occurrences cannot be negative");
+        }
+        int prevOccurrences = count(item);
+        if (occurrences > 0) {
+            backingMap.put(item, prevOccurrences + occurrences);
+        }
+        return prevOccurrences;
+    }
+
+    @Override
+    public final boolean remove(final Object item) {
+        return remove(item, 1) > 0;
+    }
+
+    @Override
+    public final int remove(final Object item, final int occurrences) {
+        if (occurrences < 0) {
+            throw new IllegalArgumentException("occurrences cannot be negative");
+        }
+        int prevOccurrences = count(item);
+        if (prevOccurrences > 0) {
+            if (occurrences >= prevOccurrences) {
+                backingMap.remove(item);
+            } else {
+                backingMap.put((T) item, prevOccurrences - occurrences);
+            }
+        }
+        return prevOccurrences;
+    }
+
+    @Override
+    public final int count(final Object item) {
+        return backingMap.getOrDefault(item, 0);
+    }
+
+    @Override
+    public final boolean containsAll(final Collection<?> collection) {
+        return backingMap.keySet().containsAll(collection);
+    }
+
+    @Override
+    public final boolean removeAll(final Collection<?> collection) {
+        return backingMap.keySet().removeAll(collection);
+    }
+
+    @Override
+    public final boolean retainAll(final Collection<?> collection) {
+        return backingMap.keySet().retainAll(collection);
+    }
+
+    @Override
+    public final void clear() {
+        backingMap.clear();
+    }
+
+    @Override
+    public final int hashCode() {
+        return backingMap.hashCode();
+    }
+
+    @Override
+    public final boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        MyMultiSet<T> other = (MyMultiSet<T>) object;
+        return backingMap.equals(other.backingMap);
+    }
+
+    public final void print() {
+        for (Object o : this) {
+            System.out.print(o + " ");
+        }
+        System.out.println();
+    }
+}

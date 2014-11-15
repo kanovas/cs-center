@@ -1,4 +1,3 @@
-#include <iostream>
 #include "huffman.hpp"
 
 using namespace std;
@@ -25,8 +24,8 @@ int main(int argc, char ** argv) {
         throw std::runtime_error("You should input arguments, using pattern -func -f <input file name> -o <output file name>");
     }
 
-    ifstream input;
-    ofstream output;
+    std::ifstream input;
+    std::ofstream output;
     try {
         input.open(argv[3]);
     }

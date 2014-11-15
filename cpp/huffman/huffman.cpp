@@ -1,4 +1,3 @@
-#include "huffman.hpp"
 
 void zip(std::ifstream input, std::ofstream output) {
     int table [512];

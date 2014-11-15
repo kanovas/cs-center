@@ -2,6 +2,7 @@
 #define HUFFMAN_HPP
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include "huffman.cpp"
 
