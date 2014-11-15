@@ -8,19 +8,23 @@ int main(int argc, char ** argv) {
     }
 
     //USAGE:
-    // argv[1] - function ('c' / 'u')
+    // argv[1] - function ("-c" / "-u")
     // argv[2] - "-f"
     // argv[3] - input file name
     // argv[4] - "-o"
     // argv[5] - output file name
 
-    if (argv[1] != "-c" || argv[1] != "-u") {
+    string function = argv[1];
+    string f = argv[2];
+    string o = argv[4];
+
+    if (function != "-c" && function != "-u") {
         throw std::runtime_error("Availible functions: zipping (-c) and unzipping (-u)");
     }
-    if (argv[2] != "-f") {
+    if (f != "-f") {
         throw std::runtime_error("You should input arguments, using pattern -func -f <input file name> -o <output file name>");
     }
-    if (argv[4] != "-o") {
+    if (o != "-o") {
         throw std::runtime_error("You should input arguments, using pattern -func -f <input file name> -o <output file name>");
     }
 
@@ -40,7 +44,7 @@ int main(int argc, char ** argv) {
         throw std::runtime_error("Can't open output file");
     }
 
-    if (argv[1] == "-c") {
+    if (function == "-c") {
         zip(input, output);
     }
     else {
