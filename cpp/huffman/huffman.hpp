@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <string>
 #include <stdexcept>
-#include "huffman.cpp"
 
 using namespace std;
 
