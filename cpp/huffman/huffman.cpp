@@ -8,10 +8,7 @@ static bool compare(node a, node b) {
     return a.compare(b);
 }
 
-node::node(int val, char k) {
-    value = val;
-    key = k;
-}
+node::node(int value, char key): value(value), key(key) {}
 
 node::~node() {
 }

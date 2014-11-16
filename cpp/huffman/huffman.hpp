@@ -10,8 +10,8 @@
 using namespace std;
 
 class node {
-    static int value;
-    static char key;
+    int value;
+    char key;
 public:
     node(int val = 0, char k = (char) 0);
     ~node();
