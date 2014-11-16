@@ -1,14 +1,25 @@
 #include "huffman.hpp"
 
-bool compare(node & a) {
-    return value > a.value;
+bool node::compare(node & a) {
+    return this->value > a.value;
+}
+
+static bool compare(node a, node b) {
+    return a.compare(b);
+}
+
+node::node(int val, char k) {
+    value = val;
+    key = k;
+}
+
+node::~node() {
 }
 
 void zip(std::ifstream & input, std::ofstream & output) {
-    node table = new node [256];
+    node table [256];
     for (int i = 0; i < 256; i++) {
-        table[i].value = 0;
-        table[i].key = (char) i;
+        table[i] = * new node(0, (char) i);
     }
     char c;
     while (!input.eof()) {

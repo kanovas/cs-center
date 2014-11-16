@@ -10,16 +10,17 @@
 using namespace std;
 
 class node {
-    int value;
-    char key;
+    static int value;
+    static char key;
 public:
-    friend bool compare(node & a);
+    node(int val = 0, char k = (char) 0);
+    ~node();
+    bool compare(node & a);
+    friend void zip(std::ifstream & in, std::ofstream & out);
 };
-
-bool compare(node & a);
 
 void zip(std::ifstream & in, std::ofstream & out);
 void unzip(std::ifstream & in, std::ofstream & out);
-
+static bool compare(node a, node b);
 
 #endif
